@@ -1,0 +1,1499 @@
+{
+	"info": {
+		"_postman_id": "autovision-collection-001",
+		"name": "AutoVision Rent API",
+		"description": "Complete API test collection for AutoVision Rent — a vehicle rental management system with AI-powered inspections.\n\n## Quick Start\n1. Import both this collection AND the `AutoVision_Environment` environment.\n2. Select the **AutoVision Local** environment.\n3. Run **\"01 — Register User\"** → **\"02 — Login User\"** (token auto-saves).\n4. Run **\"03 — Register Admin\"** → **\"04 — Login Admin\"** (token auto-saves).\n5. Now all other requests will work using the saved tokens.\n\n## Authentication\n- `{{user_token}}` — populated automatically after user login\n- `{{admin_token}}` — populated automatically after admin login",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"variable": [
+		{ "key": "base_url", "value": "http://localhost:8000" }
+	],
+	"item": [
+		{
+			"name": "🔐 Auth & Users",
+			"item": [
+				{
+					"name": "01 — Register User",
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"testuser@example.com\",\n  \"full_name\": \"Test User\",\n  \"password\": \"password123\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/users/",
+							"host": ["{{base_url}}"],
+							"path": ["users", ""]
+						}
+					},
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('User created successfully', function () {",
+									"    pm.response.to.have.status(200);",
+									"    var json = pm.response.json();",
+									"    pm.expect(json).to.have.property('id');",
+									"    pm.environment.set('user_id', json.id);",
+									"});"
+								]
+							}
+						}
+					]
+				},
+				{
+					"name": "02 — Login User",
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"testuser@example.com\",\n  \"password\": \"password123\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/users/token",
+							"host": ["{{base_url}}"],
+							"path": ["users", "token"]
+						}
+					},
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Login successful — token saved', function () {",
+									"    pm.response.to.have.status(200);",
+									"    var json = pm.response.json();",
+									"    pm.expect(json).to.have.property('access_token');",
+									"    pm.environment.set('user_token', json.access_token);",
+									"});"
+								]
+							}
+						}
+					]
+				},
+				{
+					"name": "03 — Register Admin",
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"admin@example.com\",\n  \"full_name\": \"Admin User\",\n  \"password\": \"admin123\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/users/",
+							"host": ["{{base_url}}"],
+							"path": ["users", ""]
+						}
+					},
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Admin user created (update role manually in DB or via endpoint)', function () {",
+									"    pm.response.to.have.status(200);",
+									"});"
+								]
+							}
+						}
+					]
+				},
+				{
+					"name": "04 — Login Admin",
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"admin@example.com\",\n  \"password\": \"admin123\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/users/token",
+							"host": ["{{base_url}}"],
+							"path": ["users", "token"]
+						}
+					},
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Admin login successful — token saved', function () {",
+									"    pm.response.to.have.status(200);",
+									"    var json = pm.response.json();",
+									"    pm.expect(json).to.have.property('access_token');",
+									"    pm.environment.set('admin_token', json.access_token);",
+									"});"
+								]
+							}
+						}
+					]
+				},
+				{
+					"name": "Get Current User (me)",
+					"request": {
+						"method": "GET",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{user_token}}" }
+						],
+						"url": {
+							"raw": "{{base_url}}/users/me",
+							"host": ["{{base_url}}"],
+							"path": ["users", "me"]
+						}
+					},
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Got current user profile', function () {",
+									"    pm.response.to.have.status(200);",
+									"    var json = pm.response.json();",
+									"    pm.expect(json).to.have.property('email');",
+									"});"
+								]
+							}
+						}
+					]
+				},
+				{
+					"name": "Get My Credit History",
+					"request": {
+						"method": "GET",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{user_token}}" }
+						],
+						"url": {
+							"raw": "{{base_url}}/users/me/credit-history",
+							"host": ["{{base_url}}"],
+							"path": ["users", "me", "credit-history"]
+						}
+					},
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Got credit history', function () {",
+									"    pm.response.to.have.status(200);",
+									"});"
+								]
+							}
+						}
+					]
+				},
+				{
+					"name": "[Admin] Get All Users",
+					"request": {
+						"method": "GET",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{admin_token}}" }
+						],
+						"url": {
+							"raw": "{{base_url}}/users/?skip=0&limit=100",
+							"host": ["{{base_url}}"],
+							"path": ["users", ""],
+							"query": [
+								{ "key": "skip", "value": "0" },
+								{ "key": "limit", "value": "100" }
+							]
+						}
+					},
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Got all users list', function () {",
+									"    pm.response.to.have.status(200);",
+									"    pm.expect(pm.response.json()).to.be.an('array');",
+									"});"
+								]
+							}
+						}
+					]
+				},
+				{
+					"name": "[Admin] Update User Role",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{admin_token}}" },
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"role\": \"admin\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/users/{{user_id}}/role",
+							"host": ["{{base_url}}"],
+							"path": ["users", "{{user_id}}", "role"]
+						}
+					},
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('User role updated', function () {",
+									"    pm.response.to.have.status(200);",
+									"});"
+								]
+							}
+						}
+					]
+				},
+				{
+					"name": "[Admin] Toggle User Status",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{admin_token}}" },
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"is_active\": true\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/users/{{user_id}}/toggle-status",
+							"host": ["{{base_url}}"],
+							"path": ["users", "{{user_id}}", "toggle-status"]
+						}
+					},
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('User status toggled', function () {",
+									"    pm.response.to.have.status(200);",
+									"});"
+								]
+							}
+						}
+					]
+				},
+				{
+					"name": "Upload Verification Document",
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{user_token}}" }
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "file",
+									"type": "file",
+									"src": "",
+									"description": "Select an image file (NIC, License, etc.)"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{base_url}}/users/verification-documents?document_type=nic",
+							"host": ["{{base_url}}"],
+							"path": ["users", "verification-documents"],
+							"query": [
+								{ "key": "document_type", "value": "nic", "description": "e.g. nic, license, passport" }
+							]
+						}
+					},
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Verification document uploaded', function () {",
+									"    pm.response.to.have.status(200);",
+									"});"
+								]
+							}
+						}
+					]
+				},
+				{
+					"name": "Get My Verification Documents",
+					"request": {
+						"method": "GET",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{user_token}}" }
+						],
+						"url": {
+							"raw": "{{base_url}}/users/verification",
+							"host": ["{{base_url}}"],
+							"path": ["users", "verification"]
+						}
+					},
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Got my verification documents', function () {",
+									"    pm.response.to.have.status(200);",
+									"});"
+								]
+							}
+						}
+					]
+				},
+				{
+					"name": "[Admin] Get User Verification Docs",
+					"request": {
+						"method": "GET",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{admin_token}}" }
+						],
+						"url": {
+							"raw": "{{base_url}}/users/admin/{{user_id}}/verification",
+							"host": ["{{base_url}}"],
+							"path": ["users", "admin", "{{user_id}}", "verification"]
+						}
+					},
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Got user verification docs', function () {",
+									"    pm.response.to.have.status(200);",
+									"});"
+								]
+							}
+						}
+					]
+				},
+				{
+					"name": "[Admin] Verify User",
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{admin_token}}" },
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"verification_status\": \"verified\",\n  \"verification_notes\": \"Documents reviewed and approved.\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/users/admin/{{user_id}}/verify",
+							"host": ["{{base_url}}"],
+							"path": ["users", "admin", "{{user_id}}", "verify"]
+						}
+					},
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('User verified', function () {",
+									"    pm.response.to.have.status(200);",
+									"});"
+								]
+							}
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "🚗 Vehicles",
+			"item": [
+				{
+					"name": "Get All Vehicles (Public)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/vehicles/?skip=0&limit=100",
+							"host": ["{{base_url}}"],
+							"path": ["vehicles", ""],
+							"query": [
+								{ "key": "skip", "value": "0" },
+								{ "key": "limit", "value": "100" }
+							]
+						}
+					},
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Got vehicles list', function () {",
+									"    pm.response.to.have.status(200);",
+									"    pm.expect(pm.response.json()).to.be.an('array');",
+									"    if (pm.response.json().length > 0) {",
+									"        pm.environment.set('vehicle_id', pm.response.json()[0].id);",
+									"    }",
+									"});"
+								]
+							}
+						}
+					]
+				},
+				{
+					"name": "[Admin] Create Vehicle",
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{admin_token}}" },
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"make\": \"Toyota\",\n  \"model\": \"Camry\",\n  \"year\": 2024,\n  \"daily_rate\": 75.00,\n  \"status\": \"available\",\n  \"image_url\": null\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/vehicles/",
+							"host": ["{{base_url}}"],
+							"path": ["vehicles", ""]
+						}
+					},
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Vehicle created', function () {",
+									"    pm.response.to.have.status(200);",
+									"    var json = pm.response.json();",
+									"    pm.expect(json).to.have.property('id');",
+									"    pm.environment.set('vehicle_id', json.id);",
+									"});"
+								]
+							}
+						}
+					]
+				},
+				{
+					"name": "[Admin] Upload Vehicle Image",
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{admin_token}}" }
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "file",
+									"type": "file",
+									"src": "",
+									"description": "Select vehicle image (jpg/png)"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{base_url}}/vehicles/upload-image",
+							"host": ["{{base_url}}"],
+							"path": ["vehicles", "upload-image"]
+						}
+					},
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Vehicle image uploaded', function () {",
+									"    pm.response.to.have.status(200);",
+									"});"
+								]
+							}
+						}
+					]
+				},
+				{
+					"name": "Get Vehicle by ID (Public)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/vehicles/{{vehicle_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["vehicles", "{{vehicle_id}}"]
+						}
+					},
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Got vehicle details', function () {",
+									"    pm.response.to.have.status(200);",
+									"    pm.expect(pm.response.json()).to.have.property('id');",
+									"});"
+								]
+							}
+						}
+					]
+				},
+				{
+					"name": "[Admin] Update Vehicle",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{admin_token}}" },
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"make\": \"Toyota\",\n  \"model\": \"Camry XSE\",\n  \"year\": 2025,\n  \"daily_rate\": 85.00,\n  \"status\": \"available\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/vehicles/{{vehicle_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["vehicles", "{{vehicle_id}}"]
+						}
+					},
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Vehicle updated', function () {",
+									"    pm.response.to.have.status(200);",
+									"});"
+								]
+							}
+						}
+					]
+				},
+				{
+					"name": "[Admin] Delete Vehicle",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{admin_token}}" }
+						],
+						"url": {
+							"raw": "{{base_url}}/vehicles/{{vehicle_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["vehicles", "{{vehicle_id}}"]
+						}
+					},
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Vehicle deleted', function () {",
+									"    pm.response.to.have.status(200);",
+									"});"
+								]
+							}
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "📅 Bookings",
+			"item": [
+				{
+					"name": "Get All Bookings",
+					"request": {
+						"method": "GET",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{user_token}}" }
+						],
+						"url": {
+							"raw": "{{base_url}}/bookings/?skip=0&limit=100",
+							"host": ["{{base_url}}"],
+							"path": ["bookings", ""],
+							"query": [
+								{ "key": "skip", "value": "0" },
+								{ "key": "limit", "value": "100" }
+							]
+						}
+					},
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Got bookings list', function () {",
+									"    pm.response.to.have.status(200);",
+									"    if (pm.response.json().length > 0) {",
+									"        pm.environment.set('booking_id', pm.response.json()[0].id);",
+									"    }",
+									"});"
+								]
+							}
+						}
+					]
+				},
+				{
+					"name": "Create Booking",
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{user_token}}" },
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"vehicle_id\": {{vehicle_id}},\n  \"start_date\": \"2026-06-01T10:00:00\",\n  \"end_date\": \"2026-06-05T10:00:00\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/bookings/",
+							"host": ["{{base_url}}"],
+							"path": ["bookings", ""]
+						}
+					},
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Booking created', function () {",
+									"    pm.response.to.have.status(200);",
+									"    var json = pm.response.json();",
+									"    pm.expect(json).to.have.property('id');",
+									"    pm.environment.set('booking_id', json.id);",
+									"});"
+								]
+							}
+						}
+					]
+				},
+				{
+					"name": "Get Booking by ID",
+					"request": {
+						"method": "GET",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{user_token}}" }
+						],
+						"url": {
+							"raw": "{{base_url}}/bookings/{{booking_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["bookings", "{{booking_id}}"]
+						}
+					},
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Got booking details', function () {",
+									"    pm.response.to.have.status(200);",
+									"    pm.expect(pm.response.json()).to.have.property('id');",
+									"});"
+								]
+							}
+						}
+					]
+				},
+				{
+					"name": "[Admin] Update Booking Status",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{admin_token}}" },
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"status\": \"active\"\n}",
+							"options": { "raw": { "language": "json" } }
+						},
+						"url": {
+							"raw": "{{base_url}}/bookings/{{booking_id}}/status",
+							"host": ["{{base_url}}"],
+							"path": ["bookings", "{{booking_id}}", "status"]
+						},
+						"description": "Status values: pending, active, completed, cancelled, rejected"
+					},
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Booking status updated', function () {",
+									"    pm.response.to.have.status(200);",
+									"});"
+								]
+							}
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "🔍 Rental Workflow",
+			"item": [
+				{
+					"name": "Upload Pre-Inspection (4 images)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{user_token}}" }
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{ "key": "front", "type": "file", "src": "", "description": "Front view of vehicle" },
+								{ "key": "back", "type": "file", "src": "", "description": "Back view of vehicle" },
+								{ "key": "left", "type": "file", "src": "", "description": "Left side view of vehicle" },
+								{ "key": "right", "type": "file", "src": "", "description": "Right side view of vehicle" }
+							]
+						},
+						"url": {
+							"raw": "{{base_url}}/rental/pre-inspection/{{booking_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["rental", "pre-inspection", "{{booking_id}}"]
+						}
+					},
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Pre-inspection uploaded', function () {",
+									"    pm.response.to.have.status(200);",
+									"});"
+								]
+							}
+						}
+					]
+				},
+				{
+					"name": "Start Rental",
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{user_token}}" }
+						],
+						"url": {
+							"raw": "{{base_url}}/rental/start/{{booking_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["rental", "start", "{{booking_id}}"]
+						}
+					},
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Rental started', function () {",
+									"    pm.response.to.have.status(200);",
+									"});"
+								]
+							}
+						}
+					]
+				},
+				{
+					"name": "End Rental",
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{user_token}}" }
+						],
+						"url": {
+							"raw": "{{base_url}}/rental/end/{{booking_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["rental", "end", "{{booking_id}}"]
+						}
+					},
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Rental ended', function () {",
+									"    pm.response.to.have.status(200);",
+									"});"
+								]
+							}
+						}
+					]
+				},
+				{
+					"name": "Upload Post-Inspection (4 images)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{user_token}}" }
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{ "key": "front", "type": "file", "src": "", "description": "Front view of vehicle" },
+								{ "key": "back", "type": "file", "src": "", "description": "Back view of vehicle" },
+								{ "key": "left", "type": "file", "src": "", "description": "Left side view of vehicle" },
+								{ "key": "right", "type": "file", "src": "", "description": "Right side view of vehicle" }
+							]
+						},
+						"url": {
+							"raw": "{{base_url}}/rental/post-inspection/{{booking_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["rental", "post-inspection", "{{booking_id}}"]
+						}
+					},
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Post-inspection uploaded', function () {",
+									"    pm.response.to.have.status(200);",
+									"});"
+								]
+							}
+						}
+					]
+				},
+				{
+					"name": "Get Active Rental",
+					"request": {
+						"method": "GET",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{user_token}}" }
+						],
+						"url": {
+							"raw": "{{base_url}}/rental/active",
+							"host": ["{{base_url}}"],
+							"path": ["rental", "active"]
+						}
+					},
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Got active rental info', function () {",
+									"    pm.response.to.have.status(200);",
+									"});"
+								]
+							}
+						}
+					]
+				},
+				{
+					"name": "Cancel Booking",
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{user_token}}" }
+						],
+						"url": {
+							"raw": "{{base_url}}/rental/cancel/{{booking_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["rental", "cancel", "{{booking_id}}"]
+						}
+					},
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Booking cancelled', function () {",
+									"    pm.response.to.have.status(200);",
+									"});"
+								]
+							}
+						}
+					]
+				},
+				{
+					"name": "Get Inspection Results",
+					"request": {
+						"method": "GET",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{user_token}}" }
+						],
+						"url": {
+							"raw": "{{base_url}}/rental/results/{{booking_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["rental", "results", "{{booking_id}}"]
+						}
+					},
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Got inspection results', function () {",
+									"    pm.response.to.have.status(200);",
+									"});"
+								]
+							}
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "🔎 Inspections (Admin)",
+			"item": [
+				{
+					"name": "[Admin] Get All Inspections",
+					"request": {
+						"method": "GET",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{admin_token}}" }
+						],
+						"url": {
+							"raw": "{{base_url}}/inspections/?skip=0&limit=100",
+							"host": ["{{base_url}}"],
+							"path": ["inspections", ""],
+							"query": [
+								{ "key": "skip", "value": "0" },
+								{ "key": "limit", "value": "100" }
+							]
+						}
+					},
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Got all inspections', function () {",
+									"    pm.response.to.have.status(200);",
+									"    if (pm.response.json().length > 0) {",
+									"        pm.environment.set('inspection_id', pm.response.json()[0].id);",
+									"    }",
+									"});"
+								]
+							}
+						}
+					]
+				},
+				{
+					"name": "[Admin] Get Detailed Inspections",
+					"request": {
+						"method": "GET",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{admin_token}}" }
+						],
+						"url": {
+							"raw": "{{base_url}}/inspections/detailed",
+							"host": ["{{base_url}}"],
+							"path": ["inspections", "detailed"]
+						}
+					},
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Got detailed inspections', function () {",
+									"    pm.response.to.have.status(200);",
+									"});"
+								]
+							}
+						}
+					]
+				},
+				{
+					"name": "[Admin] Get Inspection by ID",
+					"request": {
+						"method": "GET",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{admin_token}}" }
+						],
+						"url": {
+							"raw": "{{base_url}}/inspections/{{inspection_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["inspections", "{{inspection_id}}"]
+						}
+					},
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Got inspection details', function () {",
+									"    pm.response.to.have.status(200);",
+									"    pm.expect(pm.response.json()).to.have.property('id');",
+									"});"
+								]
+							}
+						}
+					]
+				},
+				{
+					"name": "[Admin] Mark Inspection Reviewed",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{admin_token}}" },
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"admin_reviewed\": true\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/inspections/{{inspection_id}}/review",
+							"host": ["{{base_url}}"],
+							"path": ["inspections", "{{inspection_id}}", "review"]
+						}
+					},
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Inspection marked as reviewed', function () {",
+									"    pm.response.to.have.status(200);",
+									"});"
+								]
+							}
+						}
+					]
+				},
+				{
+					"name": "[Admin] Complete Admin Review",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{admin_token}}" },
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"action\": \"approve\",\n  \"severity_grade\": \"none\",\n  \"admin_notes\": \"Vehicle returned in good condition.\"\n}",
+							"options": { "raw": { "language": "json" } }
+						},
+						"url": {
+							"raw": "{{base_url}}/inspections/{{inspection_id}}/review-complete",
+							"host": ["{{base_url}}"],
+							"path": ["inspections", "{{inspection_id}}", "review-complete"]
+						},
+						"description": "action: approve | reject | override\nseverity_grade: none | minor | moderate | severe"
+					},
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Admin review completed', function () {",
+									"    pm.response.to.have.status(200);",
+									"});"
+								]
+							}
+						}
+					]
+				},
+				{
+					"name": "[Admin] Update Inspection Severity",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{admin_token}}" },
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"action\": \"override\",\n  \"severity_grade\": \"minor\",\n  \"admin_notes\": \"Downgraded severity after manual review.\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/inspections/{{inspection_id}}/severity",
+							"host": ["{{base_url}}"],
+							"path": ["inspections", "{{inspection_id}}", "severity"]
+						}
+					},
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Inspection severity updated', function () {",
+									"    pm.response.to.have.status(200);",
+									"});"
+								]
+							}
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "📊 Dashboard",
+			"item": [
+				{
+					"name": "[Admin] Get Dashboard Stats",
+					"request": {
+						"method": "GET",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{admin_token}}" }
+						],
+						"url": {
+							"raw": "{{base_url}}/dashboard/stats",
+							"host": ["{{base_url}}"],
+							"path": ["dashboard", "stats"]
+						}
+					},
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Got dashboard stats', function () {",
+									"    pm.response.to.have.status(200);",
+									"});"
+								]
+							}
+						}
+					]
+				},
+				{
+					"name": "[Admin] Get Recent Bookings",
+					"request": {
+						"method": "GET",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{admin_token}}" }
+						],
+						"url": {
+							"raw": "{{base_url}}/dashboard/recent-bookings?limit=5",
+							"host": ["{{base_url}}"],
+							"path": ["dashboard", "recent-bookings"],
+							"query": [
+								{ "key": "limit", "value": "5" }
+							]
+						}
+					},
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Got recent bookings', function () {",
+									"    pm.response.to.have.status(200);",
+									"});"
+								]
+							}
+						}
+					]
+				},
+				{
+					"name": "Get User Dashboard Stats",
+					"request": {
+						"method": "GET",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{user_token}}" }
+						],
+						"url": {
+							"raw": "{{base_url}}/dashboard/user-stats",
+							"host": ["{{base_url}}"],
+							"path": ["dashboard", "user-stats"]
+						}
+					},
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Got user dashboard stats', function () {",
+									"    pm.response.to.have.status(200);",
+									"});"
+								]
+							}
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "⚠️ Incidents (Admin)",
+			"item": [
+				{
+					"name": "[Admin] Get All Incidents",
+					"request": {
+						"method": "GET",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{admin_token}}" }
+						],
+						"url": {
+							"raw": "{{base_url}}/incidents/",
+							"host": ["{{base_url}}"],
+							"path": ["incidents", ""]
+						}
+					},
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Got all incidents', function () {",
+									"    pm.response.to.have.status(200);",
+									"});"
+								]
+							}
+						}
+					]
+				},
+				{
+					"name": "[Admin] Get Incident Stats",
+					"request": {
+						"method": "GET",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{admin_token}}" }
+						],
+						"url": {
+							"raw": "{{base_url}}/incidents/stats",
+							"host": ["{{base_url}}"],
+							"path": ["incidents", "stats"]
+						}
+					},
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Got incident stats', function () {",
+									"    pm.response.to.have.status(200);",
+									"});"
+								]
+							}
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "🔔 Notifications",
+			"item": [
+				{
+					"name": "Get My Notifications",
+					"request": {
+						"method": "GET",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{user_token}}" }
+						],
+						"url": {
+							"raw": "{{base_url}}/notifications/",
+							"host": ["{{base_url}}"],
+							"path": ["notifications", ""]
+						}
+					},
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Got my notifications', function () {",
+									"    pm.response.to.have.status(200);",
+									"    pm.expect(pm.response.json()).to.be.an('array');",
+									"    if (pm.response.json().length > 0) {",
+									"        pm.environment.set('notification_id', pm.response.json()[0].id);",
+									"    }",
+									"});"
+								]
+							}
+						}
+					]
+				},
+				{
+					"name": "Get Unread Count",
+					"request": {
+						"method": "GET",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{user_token}}" }
+						],
+						"url": {
+							"raw": "{{base_url}}/notifications/unread-count",
+							"host": ["{{base_url}}"],
+							"path": ["notifications", "unread-count"]
+						}
+					},
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Got unread count', function () {",
+									"    pm.response.to.have.status(200);",
+									"});"
+								]
+							}
+						}
+					]
+				},
+				{
+					"name": "Mark Notification as Read",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{user_token}}" }
+						],
+						"url": {
+							"raw": "{{base_url}}/notifications/{{notification_id}}/read",
+							"host": ["{{base_url}}"],
+							"path": ["notifications", "{{notification_id}}", "read"]
+						}
+					},
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Notification marked as read', function () {",
+									"    pm.response.to.have.status(200);",
+									"});"
+								]
+							}
+						}
+					]
+				},
+				{
+					"name": "Mark All Notifications as Read",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{user_token}}" }
+						],
+						"url": {
+							"raw": "{{base_url}}/notifications/read-all",
+							"host": ["{{base_url}}"],
+							"path": ["notifications", "read-all"]
+						}
+					},
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('All notifications marked as read', function () {",
+									"    pm.response.to.have.status(200);",
+									"});"
+								]
+							}
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "❤️ Wishlist",
+			"item": [
+				{
+					"name": "Add Vehicle to Wishlist",
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{user_token}}" }
+						],
+						"url": {
+							"raw": "{{base_url}}/wishlist/{{vehicle_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["wishlist", "{{vehicle_id}}"]
+						}
+					},
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Vehicle added to wishlist', function () {",
+									"    pm.response.to.have.status(200);",
+									"});"
+								]
+							}
+						}
+					]
+				},
+				{
+					"name": "Get My Wishlist",
+					"request": {
+						"method": "GET",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{user_token}}" }
+						],
+						"url": {
+							"raw": "{{base_url}}/wishlist/",
+							"host": ["{{base_url}}"],
+							"path": ["wishlist", ""]
+						}
+					},
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Got wishlist', function () {",
+									"    pm.response.to.have.status(200);",
+									"});"
+								]
+							}
+						}
+					]
+				},
+				{
+					"name": "Remove Vehicle from Wishlist",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{user_token}}" }
+						],
+						"url": {
+							"raw": "{{base_url}}/wishlist/{{vehicle_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["wishlist", "{{vehicle_id}}"]
+						}
+					},
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Vehicle removed from wishlist', function () {",
+									"    pm.response.to.have.status(200);",
+									"});"
+								]
+							}
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "🏠 Root",
+			"item": [
+				{
+					"name": "Health Check (Root)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/",
+							"host": ["{{base_url}}"],
+							"path": [""]
+						}
+					},
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('API is running', function () {",
+									"    pm.response.to.have.status(200);",
+									"    pm.expect(pm.response.json().message).to.eql('Welcome to AutoVision Rent API');",
+									"});"
+								]
+							}
+						}
+					]
+				}
+			]
+		}
+	]
+}
